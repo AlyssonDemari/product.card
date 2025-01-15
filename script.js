@@ -4,7 +4,7 @@ const images = [
     {'category' : 'Crème Brûlée', 'name' : 'Vanilla Bean Crème Brûlée', 'price' : 7.00, 'image' : 'assets/images/image-creme-brulee-desktop.jpg'},
     {'category' : 'Macaron', 'name' : 'Macaron Mix of Five', 'price' : 8.00, 'image' : 'assets/images/image-macaron-desktop.jpg'},
     {'category' : 'Tiramisu', 'name' : 'Classic Tiramisu', 'price' : 5.50, 'image' : 'assets/images/image-tiramisu-desktop.jpg'},
-    {'category' : 'Baklava', 'name' : 'Classic Tiramisu', 'price' : 4.00, 'image' : 'assets/images/image-baklava-desktop.jpg'},
+    {'category' : 'Baklava', 'name' : 'Pistachio Baklava', 'price' : 4.00, 'image' : 'assets/images/image-baklava-desktop.jpg'},
     {'category' : 'Pie', 'name' : 'Lemon Meringue Pie', 'price' : 5.00, 'image' : 'assets/images/image-meringue-desktop.jpg'},
     {'category' : 'Cake', 'name' : 'Red Velvet Cake', 'price' : 4.50, 'image' : 'assets/images/image-cake-desktop.jpg'},
     {'category' : 'Brownie', 'name' : 'Salted Caramel Brownie', 'price' : 4.50, 'image' : 'assets/images/image-brownie-desktop.jpg'},
@@ -15,13 +15,15 @@ const loadImages = (images, container) => {
         images.forEach(image => {
             container.innerHTML += `
             <div class="card">
+                <div class="img-card">
                 <img src="${image.image}" alt="${image.name}">
+                <button class="addCart"><i class="fa-solid fa-cart-plus"></i> Add to Cart</button>
+                </div>
                 <div class="txt-card">
                     <p>${image.category}</p>
                     <h2>${image.name}</h2>
                     <span class="product-price">$${image.price.toFixed(2)}</span>
                 </div>
-                <button class="addCart"><i class="fa-solid fa-cart-plus"></i> Add to Cart</button>
             </div>
             `;
         });
@@ -35,6 +37,12 @@ const addedItemsContainer = document.querySelector('.itens-adicionados');
 const imgCake = document.querySelector('.cake');
 const valorTotal = document.querySelector('.valor-total');
 const yourCart = document.getElementById('your-cart');
+const copyCart = document.querySelector('.copy-cart');
+
+if (!imgCake || !valorTotal || !yourCart || !copyCart) {
+    console.error('One or more elements are missing in the DOM.');
+}
+
 
 let totalValue = 0;
 let cartItems = [];
@@ -113,4 +121,32 @@ const updateTotal = () => {
     valorTotal.style.display = cartItems.length > 0 ? "block" : "none";
     imgCake.style.display = cartItems.length > 0 ? "none" : "block";
     imgCake.style.textAlign = "center";
+    copyCart.style.display = 'block'
 };
+
+const copyCartItems = () => {
+    // Calcula o total do carrinho
+    const total = cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+    
+    // Cria uma string formatada com os itens do carrinho
+    const cartText = cartItems.map(item => {
+        return `${item.name} - Quantidade: ${item.quantity} - $${(item.price * item.quantity).toFixed(2)}`;
+    }).join('\n');
+    
+    // Adiciona o total ao final da string
+    const totalText = `Total: $${total.toFixed(2)}`;
+    
+    // Se o carrinho não estiver vazio
+    if (cartText) {
+        navigator.clipboard.writeText(`${cartText}\n${totalText}`).then(() => {
+            alert("Itens do carrinho copiados para a área de transferência!");
+        }).catch(err => {
+            console.error("Erro ao copiar: ", err);
+        });
+    } else {
+        alert("Seu carrinho está vazio!");
+    }
+};
+
+// Adiciona o evento de clique no botão "Copy Cart"
+copyCart.addEventListener('click', copyCartItems);
